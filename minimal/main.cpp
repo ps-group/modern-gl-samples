@@ -1,8 +1,10 @@
 #include "utils.h"
+#include <glbinding/Binding.h>
+#include <glbinding/Meta.h>
+#include <glbinding/Version.h>
+#include <glbinding/gl32core/gl.h>
 #include <iostream>
 #include <iterator>
-#include <glbinding/gl32core/gl.h>
-#include <glbinding/Binding.h>
 
 using namespace gl32core;
 
@@ -41,7 +43,9 @@ int main(int argc, char* argv[])
 
         SDL_Window* window = CreateWindow("Minimal OpenGL 3 Example", width, height);
         SDL_GLContext context = SDL_GL_CreateContext(window);
+
         glbinding::Binding::initialize();
+        PrintOpenGLVersion();
 
         GLuint vs = CompileShader(GL_VERTEX_SHADER, vertex_shader);
         GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fragment_shader);

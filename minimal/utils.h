@@ -25,6 +25,7 @@ struct Vertex
 
 void InitSDL();
 SDL_Window* CreateWindow(std::string_view title, int width, int height);
+void PrintOpenGLVersion();
 gl::GLuint CompileShader(gl::GLenum type, std::string_view sourceCode);
 void DoEventLoop(SDL_Window* window, const std::function<void()>& draw);
 gl::GLuint LinkProgram(gl::GLuint vs, gl::GLuint fs, const AttrBinding& binding);

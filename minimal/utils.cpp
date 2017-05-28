@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <glbinding/gl32core/gl.h>
+#include <iostream>
 
 using namespace gl32core;
 
@@ -56,7 +57,7 @@ gl::GLuint CompileShader(gl::GLenum type, std::string_view sourceCode)
             // Зная длину, выделяем строку нужного размера и копируем в неё лог
             std::string log(logLength, '\0');
             GLsizei ignored = 0;
-            glGetShaderInfoLog(shader, log.size(), &ignored, reinterpret_cast<GLchar*>(&log[0]));
+            glGetShaderInfoLog(shader, log.size(), &ignored, &log[0]);
 
             // Бросаем исключение, прикрепив к нему лог
             throw std::runtime_error("shader compilation failed: " + log);
@@ -153,4 +154,10 @@ void UploadVertexData(const Vertex* data, size_t count)
     glVertexAttribPointer(attrib_position, glm::vec2().length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, xy));
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * count, data, GL_STATIC_DRAW);
+}
+
+void PrintOpenGLVersion()
+{
+    const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    std::cout << "OpenGL version: " << version << std::endl;
 }
