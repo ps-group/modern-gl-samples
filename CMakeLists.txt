@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.8 FATAL)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # Заставим MSVC использовать static версию C++ runtime вместо DLL
-include(cmake/use-msvc-static-runtime.cmake)
+include(scripts/use-msvc-static-runtime.cmake)
 
-include(cmake/add_gl_example.cmake)
+include(scripts/functions.cmake)
 
 project(ps-opengl-samples)
 
