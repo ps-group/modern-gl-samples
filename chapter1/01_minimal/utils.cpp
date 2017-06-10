@@ -1,22 +1,23 @@
 #include "utils.h"
-#include <glbinding/gl32core/gl.h>
+#include <glbinding/gl33core/gl.h>
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
-using namespace gl32core;
+using namespace gl33core;
 
-void InitSDL()
+static std::string ReadInfoLog(gl::GLuint shader)
 {
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    // При неудаче есть лог ошибок, который мы соберём
+    // и в первую очередь надо узнать длину лога.
+    GLint logLength = 0;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    // Зная длину, выделяем строку нужного размера и копируем в неё лог
+    std::string log(logLength, '\0');
+    GLsizei ignored = 0;
+    glGetShaderInfoLog(shader, log.size(), &ignored, log.data());
+
+    return log;
 }
 
 SDL_Window* CreateWindow(std::string_view title, int width, int height)
@@ -49,15 +50,7 @@ gl::GLuint CompileShader(gl::GLenum type, std::string_view sourceCode)
         glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
         if (ok == GL_FALSE)
         {
-            // При неудаче есть лог ошибок, который мы соберём
-            // и в первую очередь надо узнать длину лога.
-            GLint logLength = 0;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-
-            // Зная длину, выделяем строку нужного размера и копируем в неё лог
-            std::string log(logLength, '\0');
-            GLsizei ignored = 0;
-            glGetShaderInfoLog(shader, log.size(), &ignored, &log[0]);
+            const std::string log = ReadInfoLog(shader);
 
             // Бросаем исключение, прикрепив к нему лог
             throw std::runtime_error("shader compilation failed: " + log);
@@ -77,8 +70,6 @@ void DoEventLoop(SDL_Window* window, const std::function<void()>& draw)
 {
     for (;;)
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -93,6 +84,8 @@ void DoEventLoop(SDL_Window* window, const std::function<void()>& draw)
             }
         }
 
+        glClear(GL_COLOR_BUFFER_BIT);
+
         draw();
 
         SDL_GL_SwapWindow(window);
@@ -100,7 +93,7 @@ void DoEventLoop(SDL_Window* window, const std::function<void()>& draw)
     }
 }
 
-GLuint LinkProgram(GLuint vs, GLuint fs, const AttrBinding& binding)
+GLuint LinkProgram(GLuint vs, GLuint fs, const AttributeBinding& binding)
 {
     GLuint program = glCreateProgram();
     glAttachShader(program, vs);
