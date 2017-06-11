@@ -46,7 +46,7 @@ FloatRect::FloatRect(const glm::vec2& topLeft, const glm::vec2& bottomRight)
     , m_bottomRight(bottomRight)
 {
     const bvec2 status = glm::lessThan(topLeft, bottomRight);
-    if (status.x || status.y)
+    if (!status.x || !status.y)
     {
         throw std::invalid_argument("Rectangle cannot have negative size");
     }

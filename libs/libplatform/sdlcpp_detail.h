@@ -54,6 +54,8 @@ public:
 class Timer
 {
 public:
+    Timer();
+
     // Возвращает число секунд с предыдущего вызова Restart.
     double Restart();
 

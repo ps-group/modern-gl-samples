@@ -1,1 +1,1 @@
-add_gl_library(libplatform)
+custom_add_library_from_dir(libplatform)

@@ -41,6 +41,11 @@ void ThrowIf(bool error)
     }
 }
 
+Timer::Timer()
+{
+    Restart();
+}
+
 double Timer::Restart()
 {
     const unsigned timeMsec = SDL_GetTicks();
@@ -52,7 +57,7 @@ double Timer::Restart()
         return 0;
     }
 
-    const double secondsElapsed = 0.001 * (m_lastTimeMsec - timeMsec);
+    const double secondsElapsed = 0.001 * (timeMsec - m_lastTimeMsec);
     m_lastTimeMsec = timeMsec;
 
     return secondsElapsed;
@@ -84,7 +89,7 @@ InitSDLCore::~InitSDLCore()
 InitSDLImage::InitSDLImage()
 {
     const int formats = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_WEBP | IMG_INIT_TIF;
-    ThrowIf(IMG_Init(formats) != 0);
+    ThrowIf(IMG_Init(formats) == 0);
 }
 
 InitSDLImage::~InitSDLImage()
@@ -95,12 +100,12 @@ InitSDLImage::~InitSDLImage()
 
 InitSDLTtf::InitSDLTtf()
 {
-
+    ThrowIf(TTF_Init() != 0);
 }
 
 InitSDLTtf::~InitSDLTtf()
 {
-
+    TTF_Quit();
 }
 
 }

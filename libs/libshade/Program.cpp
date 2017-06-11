@@ -2,12 +2,13 @@
 #include <glbinding/gl33core/gl.h>
 
 using namespace gl33core;
+using namespace std;
 
 namespace shade
 {
 namespace
 {
-std::string ReadShaderInfoLog(GLuint id)
+string ReadShaderInfoLog(GLuint id)
 {
     // При неудаче есть лог ошибок, который мы соберём
     // и в первую очередь надо узнать длину лога.
@@ -15,24 +16,24 @@ std::string ReadShaderInfoLog(GLuint id)
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLength);
 
     // Зная длину, выделяем строку нужного размера и копируем в неё лог
-    std::string log(logLength, '\0');
+    string log(logLength, '\0');
     GLsizei ignored = 0;
     glGetShaderInfoLog(id, log.size(), &ignored, log.data());
 
     return log;
 }
 
-std::string ReadProgramInfoLog(GLuint id)
+string ReadProgramInfoLog(GLuint id)
 {
     // При неудаче есть лог ошибок, который мы соберём
     // и в первую очередь надо узнать длину лога.
     GLint logLength = 0;
-    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLength);
+    glGetProgramiv(id, GL_INFO_LOG_LENGTH, &logLength);
 
     // Зная длину, выделяем строку нужного размера и копируем в неё лог
-    std::string log(logLength, '\0');
+    string log(logLength, '\0');
     GLsizei ignored = 0;
-    glGetShaderInfoLog(id, log.size(), &ignored, log.data());
+    glGetProgramInfoLog(id, log.size(), &ignored, log.data());
 
     return log;
 }
@@ -44,20 +45,21 @@ void CheckShaderStatus(GLuint id)
     if (ok == GL_FALSE)
     {
         // Бросаем исключение, прикрепив к нему лог
-        const std::string log = ReadShaderInfoLog(id);
-        throw std::runtime_error("shader compilation failed: " + log);
+        const string log = ReadShaderInfoLog(id);
+        throw runtime_error("shader compilation failed: "s + log);
     }
 }
 
-void CheckProgramStatus(GLuint id)
+void CheckProgramStatus(GLenum statusKind, GLuint id)
 {
     GLboolean status = 0;
-    glGetProgramiv(id, GL_VALIDATE_STATUS, &status);
+    glGetProgramiv(id, statusKind, &status);
     if (status == GL_FALSE)
     {
         // Бросаем исключение, прикрепив к нему лог
-        const auto log = ReadProgramInfoLog(id);
-        throw std::runtime_error(log);
+        const string log = ReadProgramInfoLog(id);
+        const string step = (statusKind == GL_LINK_STATUS) ? "linking"s : "validation"s;
+        throw runtime_error("program "s + step + " failed "s + log);
     }
 }
 } // anonymous namespace
@@ -121,7 +123,7 @@ void Program::Link()
 
         // Просим видеодрайвер выполнить компоновку и проверяем статус.
         glLinkProgram(id);
-        CheckProgramStatus(id);
+        CheckProgramStatus(GL_LINK_STATUS, id);
 
         // Запрашиваем у видеодрайвера адреса атрибутов вершин.
         for (const auto& pair : m_attributes)
@@ -151,7 +153,7 @@ void Program::Link()
 void Program::Validate() const
 {
     glValidateProgram(m_programId);
-    CheckProgramStatus(m_programId);
+    CheckProgramStatus(GL_VALIDATE_STATUS, m_programId);
 }
 
 void Program::Use() const
@@ -166,7 +168,7 @@ UniformVariable Program::GetUniform(UniformId id) const
     {
         return it->second;
     }
-    throw std::runtime_error("Shader has not attribute " + std::to_string(static_cast<int>(id)));
+    throw runtime_error("Shader has not attribute " + to_string(static_cast<int>(id)));
 }
 
 VertexAttribute Program::GetAttribute(AttributeId id) const
@@ -176,7 +178,7 @@ VertexAttribute Program::GetAttribute(AttributeId id) const
     {
         return it->second;
     }
-    throw std::runtime_error("Shader has not uniform " + std::to_string(static_cast<int>(id)));
+    throw runtime_error("Shader has not uniform " + to_string(static_cast<int>(id)));
 }
 
 void Program::FreeShaders()

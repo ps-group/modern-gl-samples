@@ -1,1 +1,1 @@
-add_gl_library(libshade)
+custom_add_library_from_dir(libshade)

@@ -48,14 +48,21 @@ void EventLoop::Run(SDL_Window &window)
         }
 
         // Invoke update callback.
-        m_onUpdate(updateTimer.Restart());
+        if (m_onUpdate)
+        {
+            m_onUpdate(updateTimer.Restart());
+        }
 
         // Invoke draw callback.
-        m_onDraw();
+        if (m_onDraw)
+        {
+            m_onDraw();
+        }
 
         // Swap buffers, then wait for next frame time.
         SDL_GL_SwapWindow(&window);
-        swapTimer.SleepFor(swapTimer.Restart() - m_framePeriod);
+        double sleepTime = swapTimer.Restart() - m_framePeriod;
+        swapTimer.SleepFor(sleepTime);
     }
 }
 
