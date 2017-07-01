@@ -39,6 +39,7 @@ ipch
 
 # CMake files
 /CMakeSettings.json
+
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
