@@ -1,5 +1,6 @@
 #include "libplatform/EventLoop.h"
-#include "libplatform/sdlcpp.h"
+#include "libplatform/ps_opengl.h"
+#include "libplatform/ps_sdl.h"
 #include "libshade/Program.h"
 #include <glbinding/Binding.h>
 #include <glbinding/Version.h>
@@ -84,11 +85,11 @@ void RunApp()
     static const int width = 800;
     static const int height = 600;
 
-    sdl::InitSDL init;
-    sdl::SetGraphicsAttributes(sdl::GraphicsAttributes());
+    ps::InitSDL init;
+    ps::SetGraphicsAttributes(ps::GraphicsAttributes());
 
-    auto window = sdl::CreateWindow("Minimal OpenGL 3 Example", { width, height });
-    auto context = sdl::CreateGraphicsContext(*window);
+    auto window = ps::CreateWindow("Minimal OpenGL 3 Example", { width, height });
+    auto context = ps::CreateGraphicsContext(*window);
 
     glbinding::Binding::initialize();
 
@@ -128,7 +129,7 @@ void RunApp()
     auto projMatrixVar = program.GetUniform(UniformId::MATRIX_PROJECTION);
     projMatrixVar.SetValue(projMatrix);
 
-    sdl::EventLoop loop;
+    ps::EventLoop loop;
     loop.DoOnDraw([&] {
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -145,7 +146,7 @@ int main(int /*argc*/, char* /*argv*/ [])
     }
     catch (const std::exception& ex)
     {
-        sdl::ShowErrorBox(ex.what());
+        ps::ShowErrorBox(ex.what());
     }
 
     return 0;

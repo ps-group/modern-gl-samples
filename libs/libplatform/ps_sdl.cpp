@@ -1,4 +1,4 @@
-#include "sdlcpp.h"
+#include "ps_sdl.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -10,7 +10,7 @@
 
 using namespace glm;
 
-namespace sdl
+namespace ps
 {
 InitSDL::InitSDL()
 {

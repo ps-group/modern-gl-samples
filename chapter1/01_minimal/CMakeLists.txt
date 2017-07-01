@@ -1,2 +1,2 @@
 
-custom_add_example(01_minimal)
+custom_add_ch1_example(01_minimal)

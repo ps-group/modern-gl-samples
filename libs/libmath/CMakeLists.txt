@@ -1,1 +1,1 @@
-custom_add_library_from_dir(libmath)
+custom_add_library_from_dirs(libmath .)

@@ -1,7 +1,7 @@
 #include "MouseGrabber.h"
 #include <glm/vec2.hpp>
 
-namespace sdl
+namespace ps
 {
 
 MouseGrabber::MouseGrabber(SDL_Window& window)
@@ -46,4 +46,4 @@ void MouseGrabber::WarpMouse()
     m_blacklist.push_back(reflectedPos);
 }
 
-} // namespace sdl
+} // namespace ps

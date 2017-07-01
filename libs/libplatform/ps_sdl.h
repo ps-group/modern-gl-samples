@@ -1,5 +1,5 @@
 #pragma once
-#include "sdlcpp_detail.h"
+#include "detail/ps_sdl_detail.h"
 #include "type_aliases.h"
 #include <SDL2/SDL.h>
 #include <glm/fwd.hpp>
@@ -7,7 +7,7 @@
 #include <string_view>
 #include <type_traits>
 
-namespace sdl
+namespace ps
 {
 // Используем unique_ptr с явно заданным функтором удаления вместо delete.
 using SDLWindowPtr = std::unique_ptr<SDL_Window, detail::SDLWindowDeleter>;
@@ -16,6 +16,10 @@ using SDLSurfacePtr = std::unique_ptr<SDL_Surface, detail::SDLSurfaceDeleter>;
 using TTFFontPtr = std::unique_ptr<TTF_Font, detail::TtfFontDeleter>;
 using SDLString = std::unique_ptr<char, detail::SDLStringDeleter>;
 
+// Класс инициализирует следующие модули SDL2:
+// - ядро SDL2
+// - модуль image
+// - модуль TTF
 class InitSDL
 {
 public:

@@ -1,7 +1,7 @@
 #include "EventLoop.h"
-#include "sdlcpp.h"
+#include "ps_sdl.h"
 
-namespace sdl
+namespace ps
 {
 
 void EventLoop::DoOnUpdate(const UpdateHandler &onUpdate)

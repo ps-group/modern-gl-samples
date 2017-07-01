@@ -1,8 +1,8 @@
 #pragma once
-#include "sdlcpp.h"
+#include "ps_sdl.h"
 #include <vector>
 
-namespace sdl
+namespace ps
 {
 
 // Класс захватывает курсор мыши, а также решает проблему
@@ -35,4 +35,4 @@ private:
     std::vector<glm::ivec2> m_blacklist;
 };
 
-} // namespace sdl
+} // namespace ps

@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <SDL2/SDL.h>
 
-namespace sdl
+namespace ps
 {
 
 using UpdateHandler = std::function<void(double secondsElapsed)>;

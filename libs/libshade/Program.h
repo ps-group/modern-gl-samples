@@ -1,10 +1,8 @@
 #pragma once
 #include "IProgram.h"
-#include <glbinding/gl/types.h>
+#include "libplatform/ps_opengl.h"
 #include <string>
-#include <string_view>
 #include <unordered_map>
-#include <vector>
 
 namespace shade
 {
@@ -31,9 +29,10 @@ public:
     void SetUniforms(const UniformBinding& uniforms);
 
     // Компилирует шейдер заданного типа из строки с исходным кодом
-    // @param type - GL_VERTEX_SHADER, GL_FRAGMENT_SHADER или GL_GEOMETRY_SHADER.
+    // @param type - это GL_VERTEX_SHADER, GL_FRAGMENT_SHADER или GL_GEOMETRY_SHADER.
     void CompileShader(gl::GLenum type, std::string_view source);
 
+    // Фасад функции glLinkProgram
     // Выполняет компоновку шейдеров в единую программу
     void Link();
 
@@ -48,13 +47,11 @@ public:
     VertexAttribute GetAttribute(AttributeId id) const override;
 
 private:
-    void FreeShaders();
-
     AttributeBinding m_attributes;
     UniformBinding m_uniforms;
     std::unordered_map<UniformId, UniformVariable> m_uniformLocations;
     std::unordered_map<AttributeId, VertexAttribute> m_attributeLocations;
-    gl::GLuint m_programId = 0;
-    std::vector<gl::GLuint> m_shaders;
+    ps::ProgramObject m_program;
+    std::vector<ps::ShaderObject> m_shaders;
 };
 } // namespace shade

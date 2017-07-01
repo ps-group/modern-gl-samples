@@ -26,10 +26,14 @@ function(custom_enable_cxx17 TARGET)
 endfunction(custom_enable_cxx17)
 
 # Функция добавляет вспомогательную библиотеку из курса OpenGL.
-function(custom_add_library_from_dir TARGET)
-    # Собираем файлы с текущего каталога
-    file(GLOB TARGET_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+# Использование: custom_add_library_from_dirs(myapp . ./detail ./helpers)
+function(custom_add_library_from_dirs TARGET)
     # Добавляем цель - библиотеку
+    # Собираем файлы с указанных каталогов
+    foreach(DIR ${ARGN})
+        file(GLOB TARGET_SRC_PART "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}/*.h")
+        list(APPEND TARGET_SRC ${TARGET_SRC_PART})
+    endforeach()
     add_library(${TARGET} ${TARGET_SRC})
     custom_enable_cxx17(${TARGET})
 endfunction()
