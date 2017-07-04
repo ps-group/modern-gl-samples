@@ -79,7 +79,7 @@ void UniformVariable::SetValue(const std::vector<glm::mat4>& value)
 {
     if ((m_location != -1) && !value.empty())
     {
-        const GLsizei count = GLsizei(value.size());
+        const auto count = GLsizei(value.size());
         glUniformMatrix4fv(m_location, count, false, glm::value_ptr(value[0]));
     }
 }

@@ -6,10 +6,6 @@ using namespace gl32core;
 
 namespace shade
 {
-Program::~Program()
-{
-}
-
 void Program::SetAttributes(const AttributeBinding& attributes)
 {
 	m_attributes = attributes;

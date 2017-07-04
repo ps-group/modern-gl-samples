@@ -12,13 +12,9 @@ using namespace glm;
 
 namespace ps
 {
-InitSDL::InitSDL()
-{
-}
+InitSDL::InitSDL() = default;
 
-InitSDL::~InitSDL()
-{
-}
+InitSDL::~InitSDL() = default;
 
 void SetGraphicsAttributes(const GraphicsAttributes& attrs)
 {
@@ -142,11 +138,12 @@ fs::path GetPrefPath(std::string_view vendorName, std::string_view appName)
 SDL_Color ConvertColor(const glm::vec4& rgba)
 {
     const vec4 scaledColor = 255.f * glm::clamp(rgba, vec4(0.f), vec4(1.f));
-    SDL_Color result;
-    result.r = Uint8(scaledColor.r);
-    result.g = Uint8(scaledColor.g);
-    result.b = Uint8(scaledColor.b);
-    result.a = Uint8(scaledColor.a);
+    SDL_Color result = {
+        Uint8(scaledColor.r),
+        Uint8(scaledColor.g),
+        Uint8(scaledColor.b),
+        Uint8(scaledColor.a)
+    };
 
     return result;
 }
@@ -161,7 +158,7 @@ SDLSurfacePtr ImageLoad(const fs::path &path)
 
 void FlipSurfaceY(SDL_Surface& surface)
 {
-    const size_t rowSize = size_t(surface.w * surface.format->BytesPerPixel);
+    const auto rowSize = size_t(surface.w * surface.format->BytesPerPixel);
     std::vector<uint8_t> row(rowSize);
 
     // Зеркально отражаем пиксели по оси Y,

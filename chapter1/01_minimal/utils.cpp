@@ -38,7 +38,7 @@ gl::GLuint CompileShader(gl::GLenum type, std::string_view sourceCode)
 	try
 	{
 		// Передаём исходный код шейдера видеодрайверу
-		const int length = static_cast<int>(sourceCode.length());
+		const auto length = static_cast<int>(sourceCode.length());
 		const char* sourceCodePtr = sourceCode.data();
 		glShaderSource(shader, 1, (const GLchar**)&sourceCodePtr, &length);
 
@@ -70,14 +70,16 @@ void DoEventLoop(SDL_Window* window, const std::function<void()>& draw)
 {
 	for (;;)
 	{
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
+		SDL_Event event = { 0 };
+		while (SDL_PollEvent(&event) != 0)
 		{
 			switch (event.type)
 			{
 			case SDL_KEYUP:
 				if (event.key.keysym.sym == SDLK_ESCAPE)
+				{
 					return;
+				}
 				break;
 			case SDL_QUIT:
 				return;
@@ -140,17 +142,20 @@ GLuint MakeBuffer()
 
 void UploadVertexData(const Vertex* data, size_t count)
 {
+	const void* colorOffset = reinterpret_cast<void*>(offsetof(Vertex, rgba));
+	const void* posOffset = reinterpret_cast<void*>(offsetof(Vertex, xy));
+
 	glEnableVertexAttribArray(attrib_color);
-	glVertexAttribPointer(attrib_color, glm::vec4().length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(attrib_color, glm::vec4().length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), colorOffset);
 
 	glEnableVertexAttribArray(attrib_position);
-	glVertexAttribPointer(attrib_position, glm::vec2().length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, xy));
+	glVertexAttribPointer(attrib_position, glm::vec2().length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), posOffset);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * count, data, GL_STATIC_DRAW);
 }
 
 void PrintOpenGLVersion()
 {
-	const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+	const auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	std::cout << "OpenGL version: " << version << std::endl;
 }

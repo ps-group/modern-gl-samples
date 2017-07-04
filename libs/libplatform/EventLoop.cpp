@@ -33,8 +33,8 @@ void EventLoop::Run(SDL_Window &window)
     for (;;)
     {
         // Invoke event handlers.
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
+        SDL_Event event = { 0 };
+        while (SDL_PollEvent(&event) != 0)
         {
             if (event.type == SDL_QUIT)
             {

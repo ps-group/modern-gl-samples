@@ -25,6 +25,16 @@ function(custom_enable_cxx17 TARGET)
     endif()
 endfunction(custom_enable_cxx17)
 
+function(custom_clang_tidy_checks)
+    set(CLANG_TIDY_OPTIONS "clang-tidy;-checks=")
+    set(SEPARATOR "")
+    foreach(CHECK ${ARGN})
+        set(CLANG_TIDY_OPTIONS "${CLANG_TIDY_OPTIONS}${SEPARATOR}${CHECK}")
+        set(SEPARATOR ",")
+    endforeach()
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_OPTIONS} PARENT_SCOPE)
+endfunction(custom_clang_tidy_checks)
+
 # Функция добавляет вспомогательную библиотеку из курса OpenGL.
 # Использование: custom_add_library_from_dirs(myapp . ./detail ./helpers)
 function(custom_add_library_from_dirs TARGET)

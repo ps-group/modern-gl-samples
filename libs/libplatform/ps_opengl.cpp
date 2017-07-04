@@ -69,7 +69,7 @@ ShaderObject CompileShader(gl::GLenum type, std::string_view source)
     ShaderObject obj = ShaderObject(glCreateShader(type));
 
     // Передаём исходный код шейдера видеодрайверу
-    const int length = static_cast<int>(source.length());
+    const auto length = static_cast<int>(source.length());
     const char* sourceLine = source.data();
     glShaderSource(obj.get(), 1, (const GLchar**)&sourceLine, &length);
 

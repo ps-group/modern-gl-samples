@@ -23,7 +23,7 @@ public:
     Program& operator =(Program&&) = default;
     Program(const Program&) = delete;
     Program& operator=(const Program&) = delete;
-    ~Program();
+    ~Program() = default;
 
     void SetAttributes(const AttributeBinding& attributes);
     void SetUniforms(const UniformBinding& uniforms);

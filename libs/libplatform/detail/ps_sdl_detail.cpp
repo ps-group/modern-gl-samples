@@ -67,7 +67,7 @@ void Timer::SleepFor(double seconds)
 {
 	if (seconds > 0)
 	{
-		const unsigned msec = static_cast<unsigned>(1000 * seconds);
+		const auto msec = static_cast<unsigned>(1000 * seconds);
 		if (msec > 0)
 		{
 			SDL_Delay(msec);

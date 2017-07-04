@@ -14,7 +14,7 @@ public:
     void Bind() const;
 
 private:
-    gl::GLuint m_id;
+    gl::GLuint m_id = 0;
 };
 
 class VertexBuffer
@@ -29,5 +29,5 @@ public:
     void UploadData(const VertexList& verticies, shade::IProgram& program);
 
 private:
-    gl::GLuint m_id;
+    gl::GLuint m_id = 0;
 };

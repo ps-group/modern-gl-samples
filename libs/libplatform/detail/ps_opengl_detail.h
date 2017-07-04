@@ -41,6 +41,7 @@ public:
     {
         reset();
         std::swap(m_handle, other.m_handle);
+        return *this;
     }
 
     // При уничтожении хранимый объект также удаляется
