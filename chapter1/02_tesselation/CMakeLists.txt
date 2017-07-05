@@ -1,2 +1,0 @@
-
-custom_add_ch1_example(02_tesselation)

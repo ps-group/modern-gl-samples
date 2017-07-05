@@ -1,11 +1,12 @@
 
 # Функция добавляет пример из курса OpenGL
-function(custom_add_ch1_example TARGET)
-    custom_add_executable_from_dir(${TARGET})
+function(custom_add_ch1_example TARGET DIR)
+    custom_add_executable_from_dirs(${TARGET} ${DIR})
     
     # Составляем список библиотек
-    set(TARGET_EXTERNAL_LIBS SDL2 SDL2_image SDL2_ttf SDL2_mixer GL glbinding assimp)
-    set(TARGET_INTERNAL_LIBS libshade libmath libplatform)
+    #set(TARGET_EXTERNAL_LIBS SDL2 SDL2_image SDL2_ttf SDL2_mixer GL glbinding assimp)
+    set(TARGET_EXTERNAL_LIBS glbinding sfml-graphics-s sfml-window-s sfml-system-s -lXrandr -lX11 -lGL -ljpeg -ludev)
+    #set(TARGET_INTERNAL_LIBS libshade libmath libplatform)
     # Составляем список путей поиска заголовочных файлов
     set(TARGET_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/libs)
 
@@ -13,5 +14,5 @@ function(custom_add_ch1_example TARGET)
     target_include_directories(${TARGET} PRIVATE ${TARGET_INCLUDE_DIRS})
 endfunction()
 
-add_subdirectory(01_minimal)
-add_subdirectory(02_tesselation)
+custom_add_ch1_example(01 "01")
+custom_add_ch1_example(02 "02")
