@@ -1,4 +1,5 @@
 #include "Tesselator.h"
+#include "libmath/Transform2D.h"
 #include "libplatform/EventLoop.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -103,7 +104,7 @@ int main()
 
 		// Создаём окно SFML
 		sf::Window window(
-			sf::VideoMode(800, 600), "OpenGL gears",
+			sf::VideoMode(800, 600), "OpenGL gears (press left mouse button to stop)",
 			sf::Style::Default, settings);
 
 		// Инициализируем библиотеку glbinding после создания окна
@@ -139,26 +140,39 @@ int main()
 		// Устанавливаем матрицу ортографического проецирования.
 		SetProjectionMatrix(window, shader);
 
-		constexpr float gearRotationPeriod = 8.f;
+		constexpr float gearRotationPeriod = 6.f;
 		const auto gearAngularVelocity = float(2.f * M_PI / gearRotationPeriod);
-		float gearRotation = 0;
+		math::Transform2D gearTransform;
+		gearTransform.MoveBy({ 400, 300 });
+		bool rotationEnabled = true;
 
 		glClearColor(0, 0, 0, 0);
 
 		ps::EventLoop loop;
+		loop.DoOnEvent(sf::Event::MouseButtonPressed, [&](const sf::Event& event) {
+			if (event.mouseButton.button == sf::Mouse::Button::Left)
+			{
+				rotationEnabled = false;
+			}
+		});
+		loop.DoOnEvent(sf::Event::MouseButtonReleased, [&](const sf::Event& event) {
+			if (event.mouseButton.button == sf::Mouse::Button::Left)
+			{
+				rotationEnabled = true;
+			}
+		});
 		loop.DoOnUpdate([&](float elapsedSec) {
-			gearRotation += gearAngularVelocity * elapsedSec;
+			if (rotationEnabled)
+			{
+				gearTransform.RotateBy(gearAngularVelocity * elapsedSec);
+			}
 		});
 		loop.DoOnDraw([&](sf::Window&) {
 			glClear(GL_COLOR_BUFFER_BIT);
 			// На каждом кадре привязываем VAO
 			glBindVertexArray(vao);
 
-			glm::mat4 world;
-			world = glm::translate(world, { 350, 280, 0 });
-			world = glm::rotate(world, gearRotation, glm::vec3(0, 0, 1));
-
-			SetWorldMatrix(world, shader);
+			SetWorldMatrix(gearTransform.ToMat4(), shader);
 			// Рисуем треугольники, используя вершины из полуинтервала [0, verticies.size)
 			glDrawArrays(GL_TRIANGLES, 0, verticies.size());
 
