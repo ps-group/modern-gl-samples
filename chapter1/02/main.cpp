@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <functional>
-#include <random>
 #include <glbinding/Binding.h>
 #include <glbinding/gl33core/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -96,7 +95,8 @@ void SetProjectionMatrix(const sf::Window& window, const sf::Shader& shader)
 std::vector<Vertex> TesselateConvexByCenter(const glm::vec2& center, const std::vector<glm::vec2>& hullPoints, IColorGenerator& colorGen)
 {
 	const size_t size = hullPoints.size();
-	std::vector<Vertex> verticies(3u * size);
+	std::vector<Vertex> verticies;
+	verticies.reserve(3u * size);
 	for (size_t pointIndex = 0; pointIndex < size; ++pointIndex)
 	{
 		// Генерируем цвет треугольника и добавляем три его вершины в список.
@@ -137,7 +137,7 @@ std::vector<Vertex> TesselateCircle(float radius, const glm::vec2& center, IColo
 		const auto angleRadians = static_cast<float>(2.f * M_PI * pi / pointCount);
 		points[pi] = center + euclidean(radius, angleRadians);
 	}
-	
+
 	return TesselateConvexByCenter(center, points, colorGen);
 }
 

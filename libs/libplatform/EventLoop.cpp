@@ -64,16 +64,16 @@ void EventLoop::Run(sf::Window& window)
 		window.display();
 
 		// Принудительное ожидание времени до следующего кадра.
-		const fp_seconds sleepTime = (swapTimer.Restart() - m_framePeriod);
-		if (sleepTime > fp_seconds::zero())
-		{
-			std::this_thread::sleep_for(sleepTime);
-		}
+		//const fp_seconds sleepTime = (swapTimer.Restart() - m_framePeriod);
+		//if (sleepTime > fp_seconds::zero())
+		//{
+		//	std::this_thread::sleep_for(sleepTime);
+		//}
 	}
 }
 
 void EventLoop::DeferQuit()
 {
-    m_willQuit = true;
+	m_willQuit = true;
 }
 }
