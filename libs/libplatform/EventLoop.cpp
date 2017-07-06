@@ -1,77 +1,79 @@
 #include "EventLoop.h"
-#include "ps_sdl.h"
+#include <SFML/Window.hpp>
+#include <thread>
 
 namespace ps
 {
 
-void EventLoop::DoOnUpdate(const UpdateHandler &onUpdate)
+void EventLoop::DoOnUpdate(const UpdateHandler& onUpdate)
 {
-    m_onUpdate = onUpdate;
+	m_onUpdate = onUpdate;
 }
 
-void EventLoop::DoOnDraw(const VoidHandler &onDraw)
+void EventLoop::DoOnDraw(const DrawHandler& onDraw)
 {
-    m_onDraw = onDraw;
+	m_onDraw = onDraw;
 }
 
-void EventLoop::DoOnEvent(SDL_EventType type, const EventHander &handler)
+void EventLoop::DoOnEvent(sf::Event::EventType type, const EventHander& handler)
 {
-    m_eventHandlers[type] = handler;
+	m_eventHandlers[type] = handler;
 }
 
 void EventLoop::SetFramesPerSecond(unsigned fps)
 {
-    assert(fps > 0 && fps <= 60); // FPS over 60 can be ignored due to vsync.
-    m_framePeriod = 1.0 / static_cast<double>(fps);
+	assert(fps > 0 && fps <= 60); // FPS выше 60 будет наверняка проигнорирован из-за vsync.
+	m_framePeriod = fp_seconds(1.0 / static_cast<double>(fps));
 }
 
-void EventLoop::Run(SDL_Window &window)
+void EventLoop::Run(sf::Window& window)
 {
-    detail::Timer swapTimer;
-    detail::Timer updateTimer;
+	Timer<fp_seconds> swapTimer;
+	Timer<fp_seconds> updateTimer;
 
-    for (;;)
-    {
-        // Invoke event handlers.
-        SDL_Event event = { 0 };
-        while (SDL_PollEvent(&event) != 0)
-        {
-            if (event.type == SDL_QUIT)
-            {
-                return;
-            }
-            auto it = m_eventHandlers.find(static_cast<SDL_EventType>(event.type));
-            if (it != m_eventHandlers.end())
-            {
-                it->second(event);
-            }
-        }
+	while (window.isOpen() && !m_willQuit)
+	{
+		// Обработка событий с вызовом пользовательских обработчиков.
+		sf::Event event = { sf::Event::Closed, 0 };
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				window.close();
+			}
+			auto it = m_eventHandlers.find(event.type);
+			if (it != m_eventHandlers.end())
+			{
+				it->second(event);
+			}
+		}
 
-        // Invoke update callback.
-        if (m_onUpdate)
-        {
-            m_onUpdate(updateTimer.Restart());
-        }
+		// Обратный вызов для обновления состояния.
+		if (m_onUpdate)
+		{
+			m_onUpdate(updateTimer.Restart().count());
+		}
 
-        // Invoke draw callback.
-        if (m_onDraw)
-        {
-            m_onDraw();
-        }
+		// Обратный вызов для рисования обновлённого состояния.
+		if (m_onDraw)
+		{
+			m_onDraw(window);
+		}
 
-        // Swap buffers, then wait for next frame time.
-        SDL_GL_SwapWindow(&window);
-        double sleepTime = swapTimer.Restart() - m_framePeriod;
-        swapTimer.SleepFor(sleepTime);
-    }
+		// Вывод кадра на экран
+		window.display();
+
+		// Принудительное ожидание времени до следующего кадра.
+		const fp_seconds sleepTime = (swapTimer.Restart() - m_framePeriod);
+		if (sleepTime > fp_seconds::zero())
+		{
+			std::this_thread::sleep_for(sleepTime);
+		}
+	}
 }
 
-void EventLoop::PostQuitMessage()
+void EventLoop::DeferQuit()
 {
-    // See also https://wiki.libsdl.org/SDL_PushEvent
-    SDL_Event event = { 0 };
-    event.type = SDL_QUIT;
-    detail::ThrowIf(SDL_PushEvent(&event) < 0);
+    m_willQuit = true;
 }
-
 }

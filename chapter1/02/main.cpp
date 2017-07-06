@@ -7,7 +7,6 @@
 #include <functional>
 #include <random>
 #include <glbinding/Binding.h>
-#include <glbinding/Version.h>
 #include <glbinding/gl33core/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -36,7 +35,6 @@ void main()
 //  вершинного шейдера цвет.
 static const char kFragmentShaderCode[] = R"**(#version 130
 in vec4 v_color;
-out vec4 o_color;
 void main()
 {
     gl_FragColor = v_color;
@@ -44,7 +42,6 @@ void main()
 )**";
 
 using DrawCallback = std::function<void()>;
-using GenerateColorFn = std::function<glm::vec4()>;
 
 struct Vertex
 {
@@ -137,7 +134,7 @@ std::vector<Vertex> TesselateCircle(float radius, const glm::vec2& center, IColo
 	std::vector<glm::vec2> points(pointCount);
 	for (unsigned pi = 0; pi < pointCount; ++pi)
 	{
-		const auto angleRadians = static_cast<float>(2 * M_PI * pointCount / pi);
+		const auto angleRadians = static_cast<float>(2.f * M_PI * pi / pointCount);
 		points[pi] = center + euclidean(radius, angleRadians);
 	}
 	
@@ -185,7 +182,7 @@ int main()
 			sf::VideoMode(800, 600), "OpenGL shapes",
 			sf::Style::Default, settings);
 
-		// Инициализируем библиотеку glbinding после создания контекста OpenGL
+		// Инициализируем библиотеку glbinding после создания окна
 		glbinding::Binding::initialize();
 
 		// Компилируем вершинный и фрагментный шейдеры в шейдерную программу
@@ -194,33 +191,27 @@ int main()
 		{
 			throw std::runtime_error("vertex or fragment shader compilation failed");
 		}
+		sf::Shader::bind(&shader);
 
-		// Отключаем ненужный в 2D тест глубины
-		glDisable(GL_DEPTH_TEST);
-		// Устанавливаем порт просмотра (размер равен размеру внутренней области окна)
-		glViewport(0, 0, window.getSize().x, window.getSize().y);
-
-		// Создаём Vertex Array Object,
-		//  хотя бы один VAO должен быть активен при рисовании.
-		GLuint vao = 0;
-		glGenVertexArrays(1, &vao);
-
-		// Создаём Vertex Buffer Object для загрузки данных,
+		// Создаём Vertex Buffer Object (VBO) для загрузки данных,
 		//  в этот буфер мы запишем параметры вершин для видеокарты.
 		GLuint vbo = 0;
 		glGenBuffers(1, &vbo);
-
-		// Активируем VAO и VBO и шейдер в текущем контексте OpenGL.
-		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		sf::Shader::bind(&shader);
+
+		// Создаём Vertex Array Object (VAO), который хранит связи между данными
+		//  в VBO и переменными шейдера.
+		GLuint vao = 0;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
 
 		// Генерируем список вершин треугольников, представляющих круг,
 		//  каждый треугольник будет раскрашен в собственный цвет.
 		RandomColorGenerator colorGen;
 		std::vector<Vertex> verticies = TesselateCircle(50, { 350, 280 }, colorGen);
 
-		// Добавляем к списку вершин вершины многоугольника.
+		// Генерируем список вершин треугольников, представляющих пятиугольник,
+		//  добавляем его к списку вершин круга.
 		const std::vector<glm::vec2> convexPoints = {
 			{ 100, 200 },
 			{ 250, 210 },
@@ -231,9 +222,10 @@ int main()
 		const std::vector<Vertex> convexVerticies = TesselateConvex(convexPoints, colorGen);
 		std::copy(convexVerticies.begin(), convexVerticies.end(), std::back_inserter(verticies));
 
-		// Выполняем привязку данных в контексте текущего VAO.
+		// Выполняем привязку вершинных данных в контексте текущего VAO.
 		BindVertexData(verticies, shader);
 
+		// Устанавливаем матрицу ортографического проецирования.
 		SetProjectionMatrix(window, shader);
 
 		EnterRenderLoop(window, [&]() {
@@ -242,6 +234,9 @@ int main()
 			// Рисуем треугольники, используя вершины из полуинтервала [0, verticies.size)
 			glDrawArrays(GL_TRIANGLES, 0, verticies.size());
 		});
+
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
 	}
 	catch (const std::exception& ex)
 	{

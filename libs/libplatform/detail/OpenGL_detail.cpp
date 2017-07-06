@@ -1,4 +1,4 @@
-#include "ps_opengl_detail.h"
+#include "OpenGL_detail.h"
 #include <glbinding/gl32core/gl.h>
 
 using namespace gl32core;
@@ -24,10 +24,4 @@ void DeleteVAO(gl::GLuint handle) noexcept
 {
     glDeleteVertexArrays(1, &handle);
 }
-
-void SetActiveBufferData(gl::GLenum target, gl::GLenum usage, const uint8_t* bytes, size_t byteCount) noexcept
-{
-    glBufferData(target, byteCount, bytes, usage);
-}
-
 }

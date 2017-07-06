@@ -10,8 +10,11 @@ function(custom_add_ch1_example TARGET DIR)
     # Составляем список путей поиска заголовочных файлов
     set(TARGET_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/libs)
 
-    target_link_libraries(${TARGET} ${TARGET_EXTERNAL_LIBS} ${TARGET_INTERNAL_LIBS})
+    target_compile_options(${TARGET} PRIVATE "-fsanitize=address" "-fsanitize=undefined")
+    target_link_libraries(${TARGET} ${TARGET_EXTERNAL_LIBS} ${TARGET_INTERNAL_LIBS} "-fsanitize=address" "-fsanitize=undefined")
     target_include_directories(${TARGET} PRIVATE ${TARGET_INCLUDE_DIRS})
+
+    custom_add_sanitizers(${TARGET})
 endfunction()
 
 custom_add_ch1_example(01 "01")

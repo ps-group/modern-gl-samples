@@ -50,7 +50,6 @@ function(custom_add_library_from_dirs TARGET)
 endfunction()
 
 # Функция добавляет пример из курса OpenGL
-# сп
 function(custom_add_executable_from_dirs TARGET)
     # Собираем файлы с указанных каталогов
     foreach(DIR ${ARGN})
@@ -61,4 +60,12 @@ function(custom_add_executable_from_dirs TARGET)
     add_executable(${TARGET} ${TARGET_SRC})
     # Включаем режим C++17
     custom_enable_cxx17(${TARGET})
+endfunction()
+
+# Функция включает Address Sanitizer и UB Sanitizer для компиляторов, где они доступны.
+function(custom_add_sanitizers TARGET)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${TARGET} PRIVATE "-fsanitize=address" "-fsanitize=undefined")
+        target_link_libraries(${TARGET} "-fsanitize=address" "-fsanitize=undefined")
+    endif()
 endfunction()

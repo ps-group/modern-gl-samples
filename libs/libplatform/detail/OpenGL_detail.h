@@ -11,8 +11,6 @@ void DeleteProgram(gl::GLuint handle) noexcept;
 void DeleteVBO(gl::GLuint handle) noexcept;
 void DeleteVAO(gl::GLuint handle) noexcept;
 
-void SetActiveBufferData(gl::GLenum target, gl::GLenum usage, const uint8_t* bytes, size_t byteCount) noexcept;
-
 template<DeleteFn deleteFn>
 class GfxObject
 {

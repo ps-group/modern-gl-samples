@@ -1,6 +1,6 @@
 #pragma once
 #include "IProgram.h"
-#include "libplatform/ps_opengl.h"
+#include "libplatform/OpenGL.h"
 #include <string>
 #include <unordered_map>
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/ps_opengl_detail.h"
+#include "detail/OpenGL_detail.h"
 #include <iosfwd>
 #include <string_view>
 #include <vector>

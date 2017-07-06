@@ -1,4 +1,4 @@
-#include "ps_opengl.h"
+#include "OpenGL.h"
 #include <glbinding/gl33core/gl.h>
 
 using namespace gl33core;

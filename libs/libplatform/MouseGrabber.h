@@ -1,6 +1,9 @@
 #pragma once
-#include "ps_sdl.h"
 #include <vector>
+
+#if 0
+
+// TODO: <sergey.shambir> портировать на SFML, см. setMouseCursorGrabbed
 
 namespace ps
 {
@@ -36,3 +39,5 @@ private:
 };
 
 } // namespace ps
+
+#endif
