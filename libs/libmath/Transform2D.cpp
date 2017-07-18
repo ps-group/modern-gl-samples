@@ -6,8 +6,6 @@
 
 namespace math
 {
-// Использует расширения GLM_GTX_matrix_transform_2d
-// См. https://glm.g-truc.net/0.9.9/api/a00209.html
 void Transform2D::RotateBy(float radians)
 {
 	this->orientation += radians;
@@ -28,6 +26,8 @@ void Transform2D::MoveBy(const glm::vec2& distance)
 	this->position += distance;
 }
 
+// Метод использует расширение GLM_GTX_matrix_transform_2d
+// См. https://glm.g-truc.net/0.9.9/api/a00209.html
 glm::mat3 Transform2D::ToMat3() const
 {
 	glm::mat3 mat;
@@ -38,7 +38,7 @@ glm::mat3 Transform2D::ToMat3() const
 	return mat;
 }
 
-// Использует расширения GLM_GTC_matrix_transform
+// Метод использует расширения GLM_GTC_matrix_transform
 // См. https://glm.g-truc.net/0.9.9/api/a00169.html
 glm::mat4 Transform2D::ToMat4() const
 {

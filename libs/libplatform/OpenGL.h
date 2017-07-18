@@ -33,7 +33,7 @@ VertexArrayObject CreateVAO();
 // Фасад функций glGenBuffers и glBufferData
 // Передаёт на видеокарту заданные байты
 // @param target - это GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER или GL_UNIFORM_BUFFER
-VertexBufferObject CreateStaticVBO(gl::GLenum target, const uint8_t* bytes, const size_t byteCount);
+VertexBufferObject CreateStaticVBO(gl::GLenum target, const std::byte* bytes, const size_t byteCount);
 
 // Эта версия функции принимает данные в виде массива. Допустимы следующие типы:
 // - T[], массив в стиле C
@@ -47,7 +47,7 @@ VertexBufferObject CreateStaticVBO(gl::GLenum target, const ArrayT& verticies)
 	using VertexT = std::decay_t<decltype(verticies[0])>;
 
 	// Превращаем указатель на начало массива в указатель на байты массива.
-	const uint8_t* bytes = reinterpret_cast<const uint8_t*>(std::data(verticies));
+	const auto bytes = reinterpret_cast<const std::byte*>(std::data(verticies));
 	// Вычисляем размер массива в байтах.
 	const size_t bytesCount = sizeof(VertexT) * std::size(verticies);
 
