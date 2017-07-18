@@ -1,4 +1,4 @@
-#include "Tesselator.h"
+#include "GearsTesselator.h"
 #include "libmath/CommonMath.h"
 #include <algorithm>
 #include <cassert>
@@ -42,32 +42,6 @@ std::vector<glm::vec2> GeneratePoints(const unsigned pointCount, const std::func
 }
 }
 
-std::vector<Vertex> Tesselator::TesselateConvex(const std::vector<glm::vec2>& verticies, const glm::vec4& color)
-{
-	// Центр выпуклого многоугольника - это среднее арифметическое его вершин
-	const glm::vec2 center = std::reduce(verticies.begin(), verticies.end()) / float(verticies.size());
-	return TesselateConvexByCenter(center, verticies, color);
-}
-
-std::vector<Vertex> Tesselator::TesselateCircle(float radius, const glm::vec2& center, const glm::vec4& color)
-{
-	assert(radius > 0);
-
-	// Круг аппроксимируется с помощью треугольников.
-	// Внешняя сторона каждого треугольника имеет длину 2.
-	constexpr float step = 2;
-	// Число треугольников равно длине окружности, делённой на шаг по окружности.
-	const auto pointCount = static_cast<unsigned>(radius * 2 * M_PI / step);
-
-	// Вычисляем точки-разделители на окружности.
-	std::vector<glm::vec2> points = GeneratePoints(pointCount, [&](unsigned index) {
-		const auto angle = static_cast<float>(2.f * M_PI * index / pointCount);
-		return center + math::euclidean(radius, angle);
-	});
-
-	return TesselateConvexByCenter(center, points, color);
-}
-
 // Получает локальный внешний радиус шестерни при заданном угле сечения.
 float GetGearLocalRadius(float outerRadius, unsigned cogCount, float cogDepth, float angle)
 {
@@ -106,7 +80,7 @@ float GetGearLocalRadius(float outerRadius, unsigned cogCount, float cogDepth, f
 	return minRadius;
 }
 
-std::vector<Vertex> Tesselator::TesselateGear(
+std::vector<Vertex> GearsTesselator::TesselateGear(
 	float innerRadius, float outerRadius, unsigned cogCount, float cogDepth,
 	const glm::vec2& center, const glm::vec4& color)
 {
