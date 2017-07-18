@@ -9,27 +9,6 @@
 
 namespace
 {
-// Генерирует список вершин треугольников для выпуклого многоугольника, заданного вершинами и центром.
-//  @param center - геометрический центр многоугольника
-//  @param hullPoints - вершины многоугольника
-//  @param colorGen - генератор цвета полученных треугольников
-std::vector<Vertex> TesselateConvexByCenter(const glm::vec2& center, const std::vector<glm::vec2>& hullPoints, const glm::vec4& color)
-{
-	const size_t size = hullPoints.size();
-	std::vector<Vertex> verticies;
-	verticies.reserve(3u * size);
-	for (size_t pointIndex = 0; pointIndex < size; ++pointIndex)
-	{
-		// Добавляем три вершины треугольника в список.
-		const size_t nextPointIndex = (pointIndex + 1) % size;
-		verticies.push_back({ hullPoints.at(pointIndex), color });
-		verticies.push_back({ hullPoints.at(nextPointIndex), color });
-		verticies.push_back({ center, color });
-	}
-
-	return verticies;
-}
-
 // Данная функция-алгоритм генерирует массив точек, вызывая переданную функцию-генератор.
 std::vector<glm::vec2> GeneratePoints(const unsigned pointCount, const std::function<glm::vec2(unsigned index)>& generator)
 {

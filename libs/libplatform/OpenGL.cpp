@@ -143,4 +143,32 @@ VertexBufferObject CreateStaticVBO(gl::GLenum target, const byte* bytes, const s
 
 	return VertexBufferObject(handle);
 }
+
+void ValidateOpenGLError()
+{
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR)
+	{
+		std::string message;
+		switch (error)
+		{
+		case GL_INVALID_ENUM:
+			message = "invalid enum passed to GL function (GL_INVALID_ENUM)";
+			break;
+		case GL_INVALID_VALUE:
+			message = "invalid parameter passed to GL function (GL_INVALID_VALUE)";
+			break;
+		case GL_INVALID_OPERATION:
+			message = "cannot execute some of GL functions in current state (GL_INVALID_OPERATION)";
+			break;
+		case GL_OUT_OF_MEMORY:
+			message = "no enough memory to execute GL function (GL_OUT_OF_MEMORY)";
+			break;
+		default:
+			message = "error in some GL extension (framebuffers, shaders, etc)";
+			break;
+		}
+		throw std::runtime_error("OpenGL error: " + message);
+	}
+}
 }

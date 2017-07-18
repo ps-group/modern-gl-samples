@@ -23,13 +23,13 @@ void EventLoop::DoOnEvent(sf::Event::EventType type, const EventHander& handler)
 void EventLoop::SetFramesPerSecond(unsigned fps)
 {
 	assert(fps > 0 && fps <= 60); // FPS выше 60 будет наверняка проигнорирован из-за vsync.
-	m_framePeriod = fp_seconds(1.0 / static_cast<double>(fps));
+	m_framePeriod = ps::seconds(1.0 / static_cast<double>(fps));
 }
 
 void EventLoop::Run(sf::Window& window)
 {
-	Timer<fp_seconds> swapTimer;
-	Timer<fp_seconds> updateTimer;
+	Timer<ps::seconds> swapTimer;
+	Timer<ps::seconds> updateTimer;
 
 	while (window.isOpen() && !m_willQuit)
 	{
@@ -51,7 +51,7 @@ void EventLoop::Run(sf::Window& window)
 		// Обратный вызов для обновления состояния.
 		if (m_onUpdate)
 		{
-			m_onUpdate(updateTimer.Restart().count());
+			m_onUpdate(updateTimer.Restart());
 		}
 
 		// Обратный вызов для рисования обновлённого состояния.
@@ -64,11 +64,11 @@ void EventLoop::Run(sf::Window& window)
 		window.display();
 
 		// Принудительное ожидание времени до следующего кадра.
-		//const fp_seconds sleepTime = (swapTimer.Restart() - m_framePeriod);
-		//if (sleepTime > fp_seconds::zero())
-		//{
-		//	std::this_thread::sleep_for(sleepTime);
-		//}
+		const ps::seconds sleepTime = (swapTimer.Restart() - m_framePeriod);
+		if (sleepTime > ps::seconds::zero())
+		{
+			std::this_thread::sleep_for(sleepTime);
+		}
 	}
 }
 

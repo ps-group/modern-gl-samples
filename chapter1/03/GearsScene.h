@@ -1,6 +1,7 @@
 #pragma once
 #include "libmath/Transform2D.h"
 #include "libplatform/OpenGL.h"
+#include "libplatform/type_aliases.h"
 #include <SFML/Window/Event.hpp>
 
 class GearsShaderProgram;
@@ -18,7 +19,7 @@ public:
 	GearsScene();
 	~GearsScene();
 
-	void Update(float elapsedSeconds);
+	void Update(ps::seconds dt);
 	void Draw(GearsShaderProgram& program) const;
 	bool OnMousePressed(const sf::Event::MouseButtonEvent& event);
 	bool OnMouseReleased(const sf::Event::MouseButtonEvent& event);

@@ -53,4 +53,8 @@ VertexBufferObject CreateStaticVBO(gl::GLenum target, const ArrayT& verticies)
 
 	return CreateStaticVBO(target, bytes, bytesCount);
 }
+
+// Бросает исключение, если ранее произошла ошибка при выполнении одной из
+//  операций OpenGL. В этом случае видеодрайвере установлен флаг ошибки.
+void ValidateOpenGLError();
 }

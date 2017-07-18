@@ -53,19 +53,14 @@ int main()
 		loop.DoOnEvent(sf::Event::MouseButtonReleased, [&](const sf::Event& event) {
 			scene.OnMouseReleased(event.mouseButton);
 		});
-		loop.DoOnUpdate([&](float elapsedSeconds) {
+		loop.DoOnUpdate([&](ps::seconds elapsedSeconds) {
 			scene.Update(elapsedSeconds);
 		});
 		loop.DoOnDraw([&](sf::Window&) {
 			glClearColor(0, 0, 0, 0);
 			glClear(GL_COLOR_BUFFER_BIT);
-
 			scene.Draw(program);
-
-			if (glGetError() != GL_NO_ERROR)
-			{
-				throw std::runtime_error("OpenGL error!");
-			}
+			ps::ValidateOpenGLError();
 		});
 		loop.Run(window);
 	}

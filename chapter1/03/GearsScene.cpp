@@ -53,11 +53,11 @@ GearsScene::GearsScene()
 
 GearsScene::~GearsScene() = default;
 
-void GearsScene::Update(float elapsedSeconds)
+void GearsScene::Update(ps::seconds dt)
 {
 	if (m_rotationEnabled)
 	{
-		const float rotation = kGearAngularVelocity * elapsedSeconds;
+		const float rotation = kGearAngularVelocity * dt.count();
 		m_gear1.transform.RotateBy(rotation);
 		m_gear2.transform.RotateBy(-rotation);
 	}

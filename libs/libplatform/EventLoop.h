@@ -7,7 +7,7 @@
 namespace ps
 {
 
-using UpdateHandler = std::function<void(float seconds)>;
+using UpdateHandler = std::function<void(ps::seconds seconds)>;
 using DrawHandler = std::function<void(sf::Window& window)>;
 using EventHander = std::function<void(const sf::Event& event)>;
 
@@ -42,7 +42,7 @@ public:
 
 private:
 	bool m_willQuit = false;
-	fp_seconds m_framePeriod = fp_seconds(1.0 / 60.0);
+	ps::seconds m_framePeriod = ps::seconds(1.0 / 60.0);
 	UpdateHandler m_onUpdate;
 	DrawHandler m_onDraw;
 	std::unordered_map<sf::Event::EventType, EventHander> m_eventHandlers;
