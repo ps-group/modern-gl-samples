@@ -5,6 +5,8 @@
 
 using namespace gl33core;
 
+namespace
+{
 // Класс реализует установку значения uniform-переменной подходящим вызовом
 //  в зависимости от типа значения.
 struct SetUniformVisitor
@@ -14,12 +16,17 @@ struct SetUniformVisitor
 	{
 	}
 
-	// Uniform-переменная типа Sampler2D должна получить индекс слота,
-	//  к которому привязана текстура с данными.
-	// Первый индекс слота - 0.
-	void operator()(TextureId value)
+	void operator()(gl::GLenum value)
 	{
-		glUniform1i(m_location, static_cast<int>(value));
+		// Uniform-переменная типа Sampler2D должна получить индекс слота,
+		//  к которому привязана текстура с данными.
+		// Первый индекс слота - 0, соответствует текстуре GL_TEXTURE0.
+		glUniform1i(m_location, int(value) - int(gl::GL_TEXTURE0));
+	}
+
+	void operator()(int value)
+	{
+		glUniform1i(m_location, value);
 	}
 
 	void operator()(float value)
@@ -55,6 +62,7 @@ struct SetUniformVisitor
 private:
 	const int m_location;
 };
+}
 
 RenderStates::RenderStates()
 {
@@ -73,6 +81,34 @@ void RenderStates::SetProgram(const IShaderProgram& shader)
 	{
 		m_activeProgram = std::addressof(shader);
 		m_activeProgram->Bind();
+	}
+}
+
+void RenderStates::SetCapabilityEnabled(gl::GLenum capability, bool enable)
+{
+	if (IsCapabilityEnabled(capability) != enable)
+	{
+		if (enable)
+		{
+			glEnable(capability);
+			m_enabledCaps.insert(capability);
+		}
+		else
+		{
+			glDisable(capability);
+			m_enabledCaps.erase(capability);
+		}
+	}
+}
+
+void RenderStates::SetBlendFunction(gl::GLenum sfactor, gl::GLenum dfactor)
+{
+	ThrowIfNoBlending();
+	std::pair blendFunc(sfactor, dfactor);
+	if (m_blendFunc != blendFunc)
+	{
+		glBlendFunc(sfactor, dfactor);
+		m_blendFunc = blendFunc;
 	}
 }
 
@@ -124,28 +160,28 @@ void RenderStates::DrawElements(gl::GLenum primitive, unsigned minIndex, unsigne
 	glDrawRangeElements(primitive, GLuint(minIndex), GLuint(maxIndex), GLsizei(indexCount), indexType, pointer);
 }
 
-void RenderStates::SetTexture2D(TextureId id, const ps::TextureObject& texture)
+void RenderStates::SetTexture2D(gl::GLenum slotId, const ps::TextureObject& texture)
 {
 	GLuint textureId = texture.get();
-	const auto slot = static_cast<int>(id);
+	const auto slotIndex = unsigned(slotId) - unsigned(GL_TEXTURE0);
 
-	if (m_activeTexture.at(slot) != textureId)
+	if (m_activeTexture.at(slotIndex) != textureId)
 	{
 		// Привязываем текстуру как активную к заданному слоту,
 		//  после привязки мы должны вновь активировать слот GL_TEXTURE0,
 		//  иначе состояние OpenGL при рисовании будет сломанным.
 		// См. https://stackoverflow.com/questions/3569261
-		if (slot == 0)
+		if (slotId == GL_TEXTURE0)
 		{
 			glBindTexture(GL_TEXTURE_2D, textureId);
 		}
 		else
 		{
-			glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + slot));
+			glActiveTexture(slotId);
 			glBindTexture(GL_TEXTURE_2D, textureId);
 			glActiveTexture(GL_TEXTURE0);
 		}
-		m_activeTexture.at(slot) = textureId;
+		m_activeTexture.at(slotIndex) = textureId;
 	}
 }
 
@@ -234,6 +270,13 @@ void RenderStates::SetAttributeOffset(
 	}
 }
 
+void RenderStates::ThrowIfNoBlending()
+{
+	if (!IsCapabilityEnabled(gl::GL_BLEND))
+	{
+	}
+}
+
 void RenderStates::ThrowIfNoShader()
 {
 	if (m_activeProgram == nullptr)
@@ -262,4 +305,10 @@ const IShaderProgram& RenderStates::GetShader()
 {
 	ThrowIfNoShader();
 	return *m_activeProgram;
+}
+
+bool RenderStates::IsCapabilityEnabled(gl::GLenum capability) const
+{
+	auto it = m_enabledCaps.find(capability);
+	return (it != m_enabledCaps.end());
 }

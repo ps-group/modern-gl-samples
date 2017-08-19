@@ -33,21 +33,3 @@ enum AttributeId : unsigned
 	// Специальное значение, равное числу констант enum.
 	AttributeIdCount
 };
-
-// Список стандартных текстурных слотов, используемых 2D рендерером.
-enum TextureId
-{
-	Texture0 = 0,
-	Texture1,
-	Texture2,
-	Texture3,
-	Texture4,
-	Texture5,
-	Texture6,
-	Texture7,
-	Texture8,
-
-	// Специальное значение, равное числу констант enum
-	//  (т.к. стоит в конце, а первая константа 0).
-	TextureIdCount
-};

@@ -4,6 +4,7 @@
 #include "UniformValue.h"
 #include "libplatform/OpenGL.h"
 #include <bitset>
+#include <set>
 
 // Класс отслеживает состояние некоторых свойств контекста OpenGL:
 //  - активный шейдер
@@ -49,6 +50,19 @@ public:
 
 	void SetProgram(const IShaderProgram& shader);
 
+	// Фасад функций glEnable/glDisable.
+	// @param capability - возможность, которая должна быть включена/выключена.
+	void SetCapabilityEnabled(gl::GLenum capability, bool enable);
+
+	// Устанавливает множители математической функции, используемой для
+	//  смешивания цветов при включённом режиме GL_BLEND.
+	// Допустимые значения sfactor и dfactor:  GL_ZERO, GL_ONE, GL_SRC_COLOR,
+	//  GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
+	//  GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA,
+	//  GL_ONE_MINUS_DST_ALPHA. GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR,
+	//  GL_CONSTANT_ALPHA и GL_ONE_MINUS_CONSTANT_ALPHA.
+	void SetBlendFunction(gl::GLenum sfactor, gl::GLenum dfactor);
+
 	// Привязывает буфер атрибутов вершин к слоту GL_ARRAY_BUFFER.
 	void BindVerticiesBuffer(const ps::VertexBufferObject& vbo);
 
@@ -56,7 +70,8 @@ public:
 	void BindIndiciesBuffer(const ps::VertexBufferObject& vbo);
 
 	// Привязывает текстуру к указанному текстурному слоту.
-	void SetTexture2D(TextureId id, const ps::TextureObject& texture);
+	// @param slotId - один из GL_TEXTURE0, GL_TEXTURE1, ... GL_TEXTURE7.
+	void SetTexture2D(gl::GLenum slotId, const ps::TextureObject& texture);
 
 	// Привязывает к uniform-переменной шейдера значение,
 	//  хранимое в вариантном типе UniformValue.
@@ -87,10 +102,14 @@ public:
 		gl::GLboolean clamped, size_t size, size_t offset);
 
 private:
+	static const unsigned TextureIdCount = 8;
+
+	void ThrowIfNoBlending();
 	void ThrowIfNoShader();
 	void ThrowIfNoVerticiesBuffer();
 	void ThrowIfNoIndiciesBuffer();
 	const IShaderProgram& GetShader();
+	bool IsCapabilityEnabled(gl::GLenum capability) const;
 
 	const IShaderProgram* m_activeProgram = nullptr;
 	ps::VertexArrayObject m_vao;
@@ -98,4 +117,6 @@ private:
 	gl::GLuint m_indiciesVBO = 0;
 	std::array<gl::GLuint, TextureIdCount> m_activeTexture = { 0 };
 	std::bitset<AttributeIdCount> m_activeAttributes;
+	std::set<gl::GLenum> m_enabledCaps;
+	std::pair<gl::GLenum, gl::GLenum> m_blendFunc;
 };

@@ -1,10 +1,12 @@
 #pragma once
 #include "Enumerations.h"
+#include <glbinding/gl/enum.h>
 #include <glm/glm.hpp>
 #include <variant>
 
 using UniformValue = std::variant<
-	TextureId,
+	gl::GLenum,
+	int,
 	float,
 	glm::vec2,
 	glm::vec3,

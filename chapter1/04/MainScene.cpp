@@ -5,6 +5,8 @@
 
 namespace
 {
+constexpr float SPACESHIP_VELOCITY = 100;
+
 MeshP2T2 MakeSpriteMesh()
 {
 	const math::FloatRect rect({ -0.5f, -0.5f }, { 0.5f, 0.5f });
@@ -14,12 +16,10 @@ MeshP2T2 MakeSpriteMesh()
 
 MainScene::MainScene()
 {
-	TexturedShape shape;
-	shape.texture = AssetLoader::LoadTexture2D("res/04/spaceship.png");
-	shape.mesh = MakeSpriteMesh();
-	shape.transform.ScaleBy(100);
-	shape.transform.MoveBy({ 200, 250 });
-	m_shapes.emplace_back(std::move(shape));
+	m_spaceship.texture = AssetLoader::LoadTexture2D("res/04/spaceship.png");
+	m_spaceship.mesh = MakeSpriteMesh();
+	m_spaceship.transform.ScaleBy({ 73, 50 });
+	m_spaceship.transform.MoveBy({ 200, 250 });
 
 	auto obj = AssetLoader::LoadShaderProgram({ "res/04/main.vert", "res/04/main.frag" });
 	std::vector<UniformInfo> uniformNames = {
@@ -37,34 +37,48 @@ MainScene::MainScene()
 
 void MainScene::Update(ps::seconds dt)
 {
+	// Обновляем местоположение космического корабля.
+	const glm::vec2 direction = m_movementController.GetDirection();
+	const glm::vec2 offset = direction * float(dt.count()) * SPACESHIP_VELOCITY;
+
+	// Для вычисления поворота корабля можно перевести направление в полярные
+	//  координаты, и угол в полярных координатах будет углом поворота корабля.
+	// Воспользуемся функцией atan2.
+	const float angleRadians = atan2(direction.y, direction.x);
+
+	m_spaceship.transform.MoveBy(offset);
+	m_spaceship.transform.orientation = angleRadians;
 }
 
 void MainScene::Draw(const sf::Window& window) const
 {
 	m_states.Rebind();
+	m_states.SetCapabilityEnabled(gl::GL_BLEND, true);
+	m_states.SetBlendFunction(gl::GL_SRC_ALPHA, gl::GL_ONE_MINUS_SRC_ALPHA);
 
 	// Устанавливаем матрицу ортографического проецирования.
 	const sf::Vector2u size = window.getSize();
 	const glm::mat4 projMat = glm::ortho(0.f, float(size.x), float(size.y), 0.f);
 	m_states.SetUniform(UniformProjectionMatrix, projMat);
-	m_states.SetUniform(UniformColormap, Texture0);
+	m_states.SetUniform(UniformColormap, gl::GL_TEXTURE0);
 
-	for (const auto& shape : m_shapes)
-	{
-		m_states.SetTexture2D(Texture0, shape.texture);
-		m_states.SetUniform(UniformWorldviewMatrix, shape.transform.ToMat4());
-		MeshUtils::DrawMesh(shape.mesh, m_states);
-	}
+	// Рисуем космический корабль.
+	DrawShape(m_spaceship);
 }
 
-bool MainScene::OnMousePressed(const sf::Event::MouseButtonEvent& event)
+bool MainScene::OnKeyPressed(const sf::Event::KeyEvent& event)
 {
-	(void)event;
-	return false;
+	return m_movementController.OnKeyPressed(event);
 }
 
-bool MainScene::OnMouseReleased(const sf::Event::MouseButtonEvent& event)
+bool MainScene::OnKeyReleased(const sf::Event::KeyEvent& event)
 {
-	(void)event;
-	return false;
+	return m_movementController.OnKeyReleased(event);
+}
+
+void MainScene::DrawShape(const TexturedShape& shape) const
+{
+	m_states.SetTexture2D(gl::GL_TEXTURE0, shape.texture);
+	m_states.SetUniform(UniformWorldviewMatrix, shape.transform.ToMat4());
+	MeshUtils::DrawMesh(shape.mesh, m_states);
 }
