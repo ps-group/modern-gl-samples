@@ -7,21 +7,26 @@ namespace ps::detail
 {
 void DeleteShader(gl::GLuint handle) noexcept
 {
-    glDeleteShader(handle);
+	glDeleteShader(handle);
 }
 
 void DeleteProgram(gl::GLuint handle) noexcept
 {
-    glDeleteProgram(handle);
+	glDeleteProgram(handle);
 }
 
 void DeleteVBO(gl::GLuint handle) noexcept
 {
-    glDeleteBuffers(1, &handle);
+	glDeleteBuffers(1, &handle);
 }
 
 void DeleteVAO(gl::GLuint handle) noexcept
 {
-    glDeleteVertexArrays(1, &handle);
+	glDeleteVertexArrays(1, &handle);
+}
+
+void DeleteTexture(gl::GLuint handle) noexcept
+{
+	glDeleteTextures(1, &handle);
 }
 }

@@ -63,7 +63,7 @@ void CheckProgramLinkingStatus(GLuint id)
 }
 } // anonymous namespace
 
-ShaderObject CompileShader(gl::GLenum type, std::string_view source)
+ShaderObject CompileShader(gl::GLenum type, string_view source)
 {
 	// Выделяем ресурс шейдера
 	ShaderObject obj = ShaderObject(glCreateShader(type));
@@ -124,7 +124,7 @@ VertexArrayObject CreateVAO()
 	glGenVertexArrays(1, &handle);
 	if (handle == 0)
 	{
-		throw std::runtime_error("cannot create VAO: no enough resources");
+		throw std::runtime_error("cannot create VAO: no enough memory");
 	}
 	return VertexArrayObject(handle);
 }
@@ -135,13 +135,24 @@ VertexBufferObject CreateStaticVBO(gl::GLenum target, const byte* bytes, const s
 	glGenBuffers(1, &handle);
 	if (handle == 0)
 	{
-		throw std::runtime_error("cannot create VAO: no enough resources");
+		throw std::runtime_error("cannot create VAO: no enough memory");
 	}
 
 	glBindBuffer(target, handle);
 	glBufferData(target, byteCount, bytes, GL_STATIC_DRAW);
 
 	return VertexBufferObject(handle);
+}
+
+TextureObject CreateTexture()
+{
+	gl::GLuint handle = 0;
+	glGenTextures(1, &handle);
+	if (handle == 0)
+	{
+		throw std::runtime_error("cannot create VAO: no enough memory");
+	}
+	return TextureObject(handle);
 }
 
 void ValidateOpenGLError()

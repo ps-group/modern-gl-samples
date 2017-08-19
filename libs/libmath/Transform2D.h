@@ -28,7 +28,6 @@ public:
 	void MoveBy(const glm::vec2& distance);
 
 	glm::mat3 ToMat3() const;
-
 	glm::mat4 ToMat4() const;
 };
 }

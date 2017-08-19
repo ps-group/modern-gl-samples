@@ -10,6 +10,7 @@ void DeleteShader(gl::GLuint handle) noexcept;
 void DeleteProgram(gl::GLuint handle) noexcept;
 void DeleteVBO(gl::GLuint handle) noexcept;
 void DeleteVAO(gl::GLuint handle) noexcept;
+void DeleteTexture(gl::GLuint handle) noexcept;
 
 template<DeleteFn deleteFn>
 class GfxObject

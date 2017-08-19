@@ -1,8 +1,6 @@
 #include "GearsScene.h"
 #include "GearsShaderProgram.h"
-#include "libmath/Transform2D.h"
 #include "libplatform/EventLoop.h"
-#include "libplatform/OpenGL.h"
 #include <SFML/Window.hpp>
 #include <functional>
 #include <glbinding/Binding.h>

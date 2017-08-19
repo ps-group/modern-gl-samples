@@ -13,12 +13,12 @@ void Transform2D::RotateBy(float radians)
 
 void Transform2D::ScaleBy(const glm::vec2& scale)
 {
-	this->size += size;
+	this->size *= scale;
 }
 
 void Transform2D::ScaleBy(const float scale)
 {
-	this->size += size;
+	this->size *= scale;
 }
 
 void Transform2D::MoveBy(const glm::vec2& distance)

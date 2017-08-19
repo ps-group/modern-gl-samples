@@ -1,4 +1,5 @@
 #include "GearsTesselator.h"
+#include "libmath/Algorithm.h"
 #include "libmath/CommonMath.h"
 #include <algorithm>
 #include <cassert>
@@ -6,20 +7,6 @@
 #include <glm/glm.hpp>
 #include <numeric>
 #include <type_traits>
-
-namespace
-{
-// Данная функция-алгоритм генерирует массив точек, вызывая переданную функцию-генератор.
-std::vector<glm::vec2> GeneratePoints(const unsigned pointCount, const std::function<glm::vec2(unsigned index)>& generator)
-{
-	std::vector<glm::vec2> points(pointCount);
-	for (unsigned pi = 0; pi < pointCount; ++pi)
-	{
-		points[pi] = generator(pi);
-	}
-	return points;
-}
-}
 
 // Получает локальный внешний радиус шестерни при заданном угле сечения.
 float GetGearLocalRadius(float outerRadius, unsigned cogCount, float cogDepth, float angle)
@@ -70,13 +57,13 @@ std::vector<Vertex> GearsTesselator::TesselateGear(
 	constexpr unsigned divisionLevel = 360;
 
 	// Точки внутренней оболочки, имеющей вид окружности.
-	std::vector<glm::vec2> innerPoints = GeneratePoints(divisionLevel, [&](unsigned index) {
+	std::vector<glm::vec2> innerPoints = math::GeneratePoints(divisionLevel, [&](unsigned index) {
 		const auto angle = static_cast<float>(2.f * M_PI * index / divisionLevel);
 		return center + math::euclidean(innerRadius, angle);
 	});
 
 	// Точки внешней оболочки, содержащей зубья.
-	std::vector<glm::vec2> outerPoints = GeneratePoints(divisionLevel, [&](unsigned index) {
+	std::vector<glm::vec2> outerPoints = math::GeneratePoints(divisionLevel, [&](unsigned index) {
 		const auto angle = static_cast<float>(2.f * M_PI * index / divisionLevel);
 		const float localRadius = GetGearLocalRadius(outerRadius, cogCount, cogDepth, angle);
 

@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include "RandomColorGenerator.h"
+#include "libmath/CommonMath.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <functional>
@@ -42,27 +43,20 @@ void main()
 
 using DrawCallback = std::function<void()>;
 
-struct Vertex
+struct VertexP2C4
 {
 	glm::vec2 xy;
 	glm::vec4 rgba;
 };
 
-// Переводит полярные координаты {radius, angle} в декартовы.
-// Угол задаётся в радианах.
-glm::vec2 euclidean(float radius, float angle)
-{
-	return { radius * cos(angle), radius * sin(angle) };
-}
-
-void BindVertexData(const std::vector<Vertex>& verticies, const sf::Shader& shader)
+void BindVertexData(const std::vector<VertexP2C4>& verticies, const sf::Shader& shader)
 {
 	const GLuint programId = shader.getNativeHandle();
 
-	// OpenGL должен получить байтовые смещения полей относительно структуры Vertex.
-	const void* colorOffset = reinterpret_cast<void*>(offsetof(Vertex, rgba));
-	const void* posOffset = reinterpret_cast<void*>(offsetof(Vertex, xy));
-	const size_t stride = sizeof(Vertex);
+	// OpenGL должен получить байтовые смещения полей относительно структуры VertexP2C4.
+	const void* colorOffset = reinterpret_cast<void*>(offsetof(VertexP2C4, rgba));
+	const void* posOffset = reinterpret_cast<void*>(offsetof(VertexP2C4, xy));
+	const size_t stride = sizeof(VertexP2C4);
 
 	// Привязываем атрибут i_color к данным в вершинном буфере.
 	const int colorLocation = glGetAttribLocation(programId, "i_color");
@@ -92,10 +86,10 @@ void SetProjectionMatrix(const sf::Window& window, const sf::Shader& shader)
 //  @param center - геометрический центр многоугольника
 //  @param hullPoints - вершины многоугольника
 //  @param colorGen - генератор цвета полученных треугольников
-std::vector<Vertex> TesselateConvexByCenter(const glm::vec2& center, const std::vector<glm::vec2>& hullPoints, IColorGenerator& colorGen)
+std::vector<VertexP2C4> TesselateConvexByCenter(const glm::vec2& center, const std::vector<glm::vec2>& hullPoints, IColorGenerator& colorGen)
 {
 	const size_t size = hullPoints.size();
-	std::vector<Vertex> verticies;
+	std::vector<VertexP2C4> verticies;
 	verticies.reserve(3u * size);
 	for (size_t pointIndex = 0; pointIndex < size; ++pointIndex)
 	{
@@ -111,7 +105,7 @@ std::vector<Vertex> TesselateConvexByCenter(const glm::vec2& center, const std::
 }
 
 // Генерирует список вершин треугольников для выпуклого многоугольника, заданного вершинами.
-std::vector<Vertex> TesselateConvex(const std::vector<glm::vec2>& verticies, IColorGenerator& colorGen)
+std::vector<VertexP2C4> TesselateConvex(const std::vector<glm::vec2>& verticies, IColorGenerator& colorGen)
 {
 	// Центр выпуклого многоугольника - это среднее арифметическое его вершин
 	const glm::vec2 center = std::reduce(verticies.begin(), verticies.end()) / float(verticies.size());
@@ -120,7 +114,7 @@ std::vector<Vertex> TesselateConvex(const std::vector<glm::vec2>& verticies, ICo
 
 // Функция делит круг на треугольники,
 //  возвращает массив с вершинами треугольников.
-std::vector<Vertex> TesselateCircle(float radius, const glm::vec2& center, IColorGenerator& colorGen)
+std::vector<VertexP2C4> TesselateCircle(float radius, const glm::vec2& center, IColorGenerator& colorGen)
 {
 	assert(radius > 0);
 
@@ -135,7 +129,7 @@ std::vector<Vertex> TesselateCircle(float radius, const glm::vec2& center, IColo
 	for (unsigned pi = 0; pi < pointCount; ++pi)
 	{
 		const auto angleRadians = static_cast<float>(2.f * M_PI * pi / pointCount);
-		points[pi] = center + euclidean(radius, angleRadians);
+		points[pi] = center + math::euclidean(radius, angleRadians);
 	}
 
 	return TesselateConvexByCenter(center, points, colorGen);
@@ -193,13 +187,13 @@ int main()
 		}
 		sf::Shader::bind(&shader);
 
-		// Создаём Vertex Buffer Object (VBO) для загрузки данных,
+		// Создаём VertexP2C4 Buffer Object (VBO) для загрузки данных,
 		//  в этот буфер мы запишем параметры вершин для видеокарты.
 		GLuint vbo = 0;
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-		// Создаём Vertex Array Object (VAO), который хранит связи между данными
+		// Создаём VertexP2C4 Array Object (VAO), который хранит связи между данными
 		//  в VBO и переменными шейдера.
 		GLuint vao = 0;
 		glGenVertexArrays(1, &vao);
@@ -208,7 +202,7 @@ int main()
 		// Генерируем список вершин треугольников, представляющих круг,
 		//  каждый треугольник будет раскрашен в собственный цвет.
 		RandomColorGenerator colorGen;
-		std::vector<Vertex> verticies = TesselateCircle(50, { 350, 280 }, colorGen);
+		std::vector<VertexP2C4> verticies = TesselateCircle(50, { 350, 280 }, colorGen);
 
 		// Генерируем список вершин треугольников, представляющих пятиугольник,
 		//  добавляем его к списку вершин круга.
@@ -219,7 +213,7 @@ int main()
 			{ 130, 300 },
 			{ 100, 250 },
 		};
-		const std::vector<Vertex> convexVerticies = TesselateConvex(convexPoints, colorGen);
+		const std::vector<VertexP2C4> convexVerticies = TesselateConvex(convexPoints, colorGen);
 		std::copy(convexVerticies.begin(), convexVerticies.end(), std::back_inserter(verticies));
 
 		// Выполняем привязку вершинных данных в контексте текущего VAO.

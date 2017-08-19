@@ -69,3 +69,29 @@ function(custom_add_sanitizers TARGET)
         target_link_libraries(${TARGET} "-fsanitize=address" "-fsanitize=undefined")
     endif()
 endfunction()
+
+# Функция копирует файлы из каталога в другой каталог,
+#  но только в случае, если файл не был скопирован ранее
+#  либо изменился (обновилась дата модификации).
+function(custom_distribute_assets SOURCE_DIRNAME DESTINATION_DIRNAME TARGET)
+    # Собираем список файлов с расширениями, характерными для ресурсов.
+    set(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIRNAME}")
+    set(DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${DESTINATION_DIRNAME}")
+    file(GLOB_RECURSE SRC_FILES
+        "${SOURCE}/*.png"
+        "${SOURCE}/*.jpg"
+        "${SOURCE}/*.vert"
+        "${SOURCE}/*.frag")
+
+    # FROM содержить путь к исходному файлу, TO содержит целевой путь.
+    foreach(FROM ${SRC_FILES})
+        string(REPLACE "${SOURCE}" "${DESTINATION}" TO "${FROM}")
+        add_custom_command(
+                   TARGET ${TARGET}
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND}
+                   ARGS    -E copy_if_different ${FROM} ${TO}
+                   COMMENT "Copying ${FROM} ${DESTINATION}"
+                   )
+    endforeach()
+endfunction()

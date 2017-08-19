@@ -10,6 +10,7 @@ using ShaderObject = detail::GfxObject<detail::DeleteShader>;
 using ProgramObject = detail::GfxObject<detail::DeleteProgram>;
 using VertexBufferObject = detail::GfxObject<detail::DeleteVBO>;
 using VertexArrayObject = detail::GfxObject<detail::DeleteVAO>;
+using TextureObject = detail::GfxObject<detail::DeleteTexture>;
 
 // Фасад функции glCompileShader
 // Компилирует шейдер заданного типа из строки с исходным кодом
@@ -53,6 +54,10 @@ VertexBufferObject CreateStaticVBO(gl::GLenum target, const ArrayT& verticies)
 
 	return CreateStaticVBO(target, bytes, bytesCount);
 }
+
+// Фасад функции glGenTextures.
+// Создаёт объект текстуры, которому затем можно передать пиксели.
+TextureObject CreateTexture();
 
 // Бросает исключение, если ранее произошла ошибка при выполнении одной из
 //  операций OpenGL. В этом случае видеодрайвере установлен флаг ошибки.
